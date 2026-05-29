@@ -1,0 +1,9 @@
+#"gemini-3-flash-preview" or "gemini-3.1-flash-lite-preview"
+product_id_model : gemini-3.5-flash
+url_analysis_model : gemini-3.5-flash
+product_details_model : gemini-3.5-flash
+sanity_check_model : gemini-3.5-flash
+audio_item_extraction_model : gemini-3.5-flash
+added_context_format_model : gemini-3.1-flash-lite-preview
+text_description_item_extraction_model : gemini-3.1-flash-lite-preview
+actuals_item_extraction_model : gemini-3.5-flash

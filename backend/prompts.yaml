@@ -1,0 +1,215 @@
+product_id_prompt: | 
+  {__added_context__}
+
+  Analyze the product in the foreground of this image or if multiple products are in the image, analyze the marked, circled, or otherwise designated item.
+
+  1. First, identify any visible text, logos, brand names, model numbers, or UPC/barcodes
+  2. Note distinctive physical characteristics (color, size, material, shape)
+  3. Determine the product category (e.g., electronics, food, household item)
+  4. Remove any product codes, IDS, SKUs, or other extraneous text from the description and query
+  5. Avoid domains specific to second hand, craft, or other non-primary retail sites.
+  6. For books, query the exact title and author
+
+  Based on this analysis, provide:
+  - query: A specific search query using the exact brand name and product name, or if not availble, the most distinctive identifiable features.
+  - description: A concise product description (max 10 words)
+  - domain: The best retail domain for this product category (use category specific retailers like homedepot.com for tools, bestbuy.com for electronics, etc.)
+
+  Prioritize specificity over generality in your search query. 
+
+fallback_product_id_prompt: |
+  {__added_context__}
+
+  Analyze the product in the foreground of this image or if multiple products are in the image, analyze the marked, circled, or otherwise designated item.
+
+  1. Note distinctive physical characteristics (color, size, material, shape)
+  2. Determine the product category (e.g., electronics, food, household item)
+  3. Remove any product codes, IDS, SKUs, or other extraneous text from the description and query
+  4. Avoid domains specific to second hand, craft, or other non-primary retail sites.
+  5. For books, query the exact title and author
+
+  Based on this analysis, provide:
+  - query: A general search query designed to retrieve broadly similar items from the same class. Avoid specific brands or products
+  - description: A concise product description (max 10 words)
+  - domain: The best retail domain for this product category (use category specific retailers like homedepot.com for tools, bestbuy.com for electronics, etc.)
+
+  Prioritize generality over specificity in your search query. 
+
+url_analysis_prompt: |
+  {__added_context__}
+
+  You are selecting the best product search results that match this item for the purpose of purchasing a comparable replacement after a loss due to fire, flood, or other disaster:
+  Description: {__product_description__}
+  [The uploaded image (if any is provided) shows the actual product]
+
+  Review these search results described by the index, url, and title and evaluate each one with a score (from 1 to 10, with 10 being the best) and validity:
+  {__search_results_str__}
+
+  Selection criteria (in order of priority):
+  1. URL must be a direct product page (contains /dp/, /product/, /p/, or similar product identifiers)
+  2. Product appears to match the image exactly (same brand, model, size)
+  3. Primary retailer preferred over marketplace/reseller (avoid eBay, used goods, auction sites)
+  4. Size or prominance of marketplace/retailer. Prefer larger retails like walmart or amazon over obscure or boutique ones
+  5. Active product listing (avoid discontinued/out-of-stock indicators in URL)
+  6. Location of retailer or website. Use US websites only. With product prices in USD
+  7. Don't pull links from Wedding Registries
+  8. Avoid craft sites like Etsy
+  9. Prefer specific retail domains for this product category (prefer category specific retailers like homedepot.com for tools, bestbuy.com for electronics, etc.)
+  10. Aovid wholesellers and industrial factory orders.
+  11. Mark links that are likely to be spam, scams, or search engine optimization traps as invalid. For example, unrelated domains names, or sketchy sounding sites
+
+
+  Mark URLs containing: /search, /browse, /category, /s?, /b/, /gp/aw/, /wishlist, /review, other other similar markers as invalid
+
+  Return a list of structured responses according to the schema provided. One element for each provided search result.
+
+
+
+product_detail_prompt: | 
+  {__added_context__}
+
+  Product description:
+  {__product_description__}
+
+  Extract product information from this URL for the described product for the purpose of purchasing a comparable replacement after a loss due to fire, flood, or other disaster:
+  {__link_str__}
+
+  For each URL, extract:
+  - The canonical/base price (not sale price unless it's the only price shown)
+  - The full product name or title as listed
+  - Currency: If the currency or price is not in USD, skip the link
+  - The category of the item
+
+  Then format the url validity, item category, price, and name information per the output structure.
+
+  If the URL directs to a page with multiple products, like a search result page, select the one closest to the provided description. 
+  If a URL is not a valid page or price cannot be determined, indicate the page if invalid.
+  If the page does not have any items that provide a reasonable match for the purpose of replacing an item with a comparable or similar one, indicate the page is invalid.
+  If multiple variants exist, extract the price for the default/first variant shown.
+
+sanity_check_prompt: |
+  {__added_context__}
+
+  You are validating product search results for fire damage insurance claims. A system analyzed an image of a damaged item and returned product information to estimate purchase price.
+
+  Given the following data, determine if the result is VALID or INVALID and provide a reason why according to the response schema:
+
+  INPUT IMAGE DESCRIPTION: {__description__}
+  RETURNED PRICE: {__price__}
+  RETURNED URL: {__URL__}
+
+  A result is VALID if ALL of the following are true:
+  1. The product name/description reasonably matches the input image description (same item type/category)
+  2. The price is a realistic replacement cost (typically $1-$10,000 for household items, not $0 or extremely high)
+  3. The URL is an actual product page link or search page or content delivery network endpoint for similar items (not "No Product URL Available" or clearly invalid)
+  4. The URL appears to be from a legitimate retailer/marketplace
+
+  A result is INVALID if ANY of the following are true:
+  1. Product mismatch: returned product is dramatically different from the image description. Ignore differences like package size, size, color, minor functional differences, etc.
+  2. Price is $0, missing, or unrealistically high/low for the item type
+  3. URL is a placeholder message or clearly broken/invalid
+  4. URL leads to a non-retail site or homepage instead of a specific product
+
+audio_item_extraction_prompt: | 
+  {__added_context__}
+
+  This audio file contains a dictation of descriptions of items that were lost, stolen, or damaged after a fire in a home.
+  Listen and anylyze the audio file for descriptions of items. Extract and transcribe the item descriptions in about ten words or less.
+  The intent is to use these descriptions to search the web for comparable products. Make sure the descriptions are suitable for this purpose.
+  You may provide extra context or modify the descriptions for clarity or ease of retrieval.
+  Ignore extraneous audio or anything not related to the description of lost of damaged items. Use the response format provided.
+
+audio_product_id_prompt: | 
+  {__added_context__}
+
+  Analyze the description below of an item that was lost, stolen, or damaged after a fire in a home:
+
+  {__item_description__}
+
+  1. Identify any brands, product makes, models, or titles 
+  2. Note distinctive characteristics mentions
+  3. Determine the product category (e.g., electronics, food, household item)
+  4. Avoid domains specific to second hand, craft, or other non-primary retail sites.
+  5. For books, query the exact title and author
+  6. If applicable, use the context provided in this prompt, like gender of items, likely price range, or item class, to make a more specific description or query
+
+  Based on this analysis, provide:
+  - query: A specific search query using the exact brand name and product name, or if not availble, the most distinctive identifiable features.
+  - description: A concise product description (max 10 words), including any brands or product makes, models, or titles.
+  - domain: The best retail domain for this product category (use category specific retailers like homedepot.com for tools, bestbuy.com for electronics, etc.)
+
+  Prioritize specificity over generality in your search query. 
+
+audio_url_analysis_prompt: |
+  {__added_context__}
+
+  You are selecting the best product search results that match this item:
+  Description: {__product_description__}
+
+  Review these search results described by the index, url, and title and select the {__k__} best matches:
+  {__search_results_str__}
+
+  Selection criteria (in order of priority):
+  1. URL must be a direct product page (contains /dp/, /product/, /p/, or similar product identifiers)
+  2. Product appears to match the description generally (same brand, model, size)
+  3. Primary retailer preferred over marketplace/reseller (avoid eBay, used goods, auction sites)
+  4. Size or prominance of marketplace/retailer. Prefer larger retails like walmart or amazon over obscure or boutique ones
+  5. Active product listing (avoid discontinued/out-of-stock indicators in URL)
+  6. Location of retailer or website. Use US websites only. With product prices in USD
+  7. Don't pull links from Wedding Registries
+  8. Avoid craft sites like Etsy
+  9. Prefer specific retail domains for this product category (prefer category specific retailers like homedepot.com for tools, bestbuy.com for electronics, etc.)
+  10. Aovid wholesellers and industrial factory orders.
+  11. Ignore links that are likely to be hijacked domains, spam, scams, or search engine optimization traps. For example, unrelated domains names, or sketchy sounding sites.
+
+  REJECT URLs containing: /search, /browse, /category, /s?, /b/, /gp/aw/, /wishlist, /review, cairocommunity, 
+
+  Return only the indices as a JSON array of integers.
+
+
+pdf_receipt_item_extraction_prompt: |
+
+  {__added_context__}
+  
+  You are assting in totalling the total actual cost of replacing items after a fire or other property loss claim event.
+  Analyze the attached receipt, invoice, or proof of purchase.
+
+  For each item or individual product purchased, extract the name, title, or product description. If the name, title, or description is longer than 10 words, summarize it in ten words or less.
+  Translate any abbreviations, internal codes, or retailer-specific shorthand in item names into plain language (tens words or less) that clearly identifies the product to someone unfamiliar with that retailer's format.
+  Find and extract the actual net purchase price for each item, inclusive of promontions, sales or other discounts. No don't consider gift cards, rewards points, or other forms of payments as a discount.
+  If the price cannot be extracted, set it to 0.0
+  Determine the best category for the items from those in the response format
+  Determine the quantity purchased for this item. Combine duplicated items into one with the correct quantity. 
+  Ignore perishable groceries like produce, dairy, or meat as these are not eligible to be counted as actuals. However, non-perisables like canned goods or ingrediants
+  Ignore items that have been marked returned or refunded.
+
+  Based on this analysis respond with the respnse format. 
+
+process_added_context_prompt: |
+  Review the following context that a user has provided to assist in an AI system helping to identify, catalog, and price items that we lost, damaged, or replaced for a property loss claim.
+  Take special note of any information that might narrow down the gender of clothing or related items, the tier of retailer they frequent, and the class of item (budget, standard, high-end, and luxury) they may have purchased.
+  Make sure to note that information found directly from any images, receipts, or descriptions should take priority, but this context should be used when there is uncertainty.
+  Format this background and the information provided as added context that can be provided to an AI agent that will search for comparable items on the internets based on an image, description, or audio file.
+  Respond in up to two paragraphs, depending on the amount of information provided.
+
+  {__raw_context__}
+
+default_added_context: |
+  No additional context was provided by the user.
+  When searching for comparable items, default to the following assumptions: assume standard, mid-range products from mainstream retailers such as Target, Amazon, Walmart, IKEA, and similar stores.
+  For clothing, determine the gender from context if any is indicated by the item description or image.
+  Assume items are in average pre-loss condition unless stated otherwise.
+  Prefer name-brand products over generic or store-brand equivalents when a specific brand is not identified. Also avoid designer, luxury, or overly expensive items unless specifically indicated.
+  If the item category is ambiguous, favor the most common household version of that item.
+
+text_item_extraction_prompt : |
+  {__added_context__}
+
+  The following text contains descriptions of items that were lost, stolen, or damaged after a fire in a home.
+  Read and analyze the text for individual item descriptions. Extract and transcribe each item description in about ten words or less.
+  The intent is to use these descriptions to search the web for comparable products. Make sure the descriptions are suitable for this purpose.
+  You may provide extra context or modify the descriptions for clarity or ease of retrieval.
+  Ignore extraneous text or anything not related to the description of lost or damaged items. Use the response format provided.
+
+  Descriptions:
+  {__text_descriptions__}

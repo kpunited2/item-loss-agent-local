@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.egg-info
+.env
+.vscode
+*.ipynb
+.git
+dist/
+.uv/
+data/

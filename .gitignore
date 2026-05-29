@@ -1,0 +1,16 @@
+*.env*
+Processed_images/
+Unprocessed_images/
+.venv/
+*.gsheet
+__pycache__/
+Item_Images/
+test_images/
+.vscode/
+desktop.ini
+from tablet/
+backup_processed_logs/
+*_Images/
+*service_account_key.json
+*app.egg-info/
+data/
