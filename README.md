@@ -1,4 +1,4 @@
-# Settlement Calculator / Item Loss Agent
+# Item Loss Agent
 
 A web application for documenting and calculating insurance claims for lost, damaged, or stolen items. Uses AI-powered image recognition and web search to estimate replacement values.
 
