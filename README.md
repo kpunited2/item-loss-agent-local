@@ -21,7 +21,7 @@ NOTE: Google recently changed to custom search API feature to no longer search t
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/kpunited2/settlement-calculator.git
+git clone https://github.com/kpunited2/item-loss-agent-local.git
 cd settlement-calculator
 ```
 
